@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RA2111026010039</title> 
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>JSON Input</h2>
+        <textarea id="jsonInput" placeholder="Enter valid JSON here"></textarea>
+        <button id="submitBtn">Submit</button>
+        <div id="error" class="error"></div>
+        
+        <select id="multiSelect" class="hidden">
+            <option value="">Select Filter</option>
+            <option value="alphabets">Alphabets</option>
+            <option value="numbers">Numbers</option>
+            <option value="highestLowercase">Highest Lowercase Alphabet</option>
+        </select>
+
+        <div id="response"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    textarea {
+        width: 100%;
+        height: 100px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #218838;
+    }
+
+    .error {
+        color: red;
+        margin-top: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+<script>
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const jsonInput = document.getElementById('jsonInput').value;
+        const errorDiv = document.getElementById('error');
+        const multiSelect = document.getElementById('multiSelect');
+        const responseDiv = document.getElementById('response');
+
+        // Clear previous error and response
+        errorDiv.textContent = '';
+        responseDiv.textContent = '';
+
+        // Validate JSON input
+        try {
+            const jsonData = JSON.parse(jsonInput);
+
+            // Show the dropdown
+            multiSelect.classList.remove('hidden');
+
+            // Add event listener to handle selection
+            multiSelect.addEventListener('change', () => {
+                const selectedOption = multiSelect.value;
+                renderResponse(jsonData.data, selectedOption);
+            });
+
+        } catch (error) {
+            errorDiv.textContent = 'Invalid JSON input. Please correct it.';
+        }
+    });
+
+    function renderResponse(data, selectedOption) {
+        const responseDiv = document.getElementById('response');
+        responseDiv.innerHTML = '';
+
+        // Separate alphabets and numbers
+        const alphabets = data.filter(item => isNaN(item));
+        const numbers = data.filter(item => !isNaN(item));
+
+        let output = '';
+
+        // Display based on selected option
+        if (selectedOption === 'alphabets') {
+            output = `Alphabets: ${alphabets.join(', ')}`;
+        } else if (selectedOption === 'numbers') {
+            output = `Numbers: ${numbers.join(', ')}`;
+        } else if (selectedOption === 'highestLowercase') {
+            const highest = alphabets
+                .filter(char => char.toLowerCase() === char)
+                .map(char => char.charCodeAt(0));
+            if (highest.length > 0) {
+                output = `Highest lowercase alphabet: ${String.fromCharCode(Math.max(...highest))}`;
+            } else {
+                output = 'No lowercase alphabets found.';
+            }
+        }
+
+        responseDiv.textContent = output;
+    }
+</script>
+</html>
